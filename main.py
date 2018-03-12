@@ -181,7 +181,127 @@ for i in nc_list:
 X = pd.concat([nc_list[0],nc_list[1],nc_list[2],nc_list[3],nc_list[4],nc_list[5],nc_list[6],nc_list[7]])
 X = X.reset_index(drop=True)
 
+x_columns = list(X.columns.values)
+x_columns = [x for x in x_columns if x not in ['f_Seed_region','s_Seed_region','winning','Season']]
+
+y = X['winning']
+X = X.drop('winning',axis=1)
+
+#Create and train data set
+X_train = X[:252]
+y_train = y[:252]
+X_test = X[252:]
+y_test = y[252:]
+#Divide test data
+t_2014 = X_test[:63]
+t_2015 = X_test[63:126]
+t_2016 = X_test[126:189]
+t_2017 = X_test[189:252]
+
+teams_2014 = sorted(list(set(list(set(t_2014['WTeamID'])) + list(set(t_2014['LTeamID'])))))
+teams_2015 = sorted(list(set(list(set(t_2015['WTeamID'])) + list(set(t_2015['LTeamID'])))))
+teams_2016 = sorted(list(set(list(set(t_2016['WTeamID'])) + list(set(t_2016['LTeamID'])))))
+teams_2017 = sorted(list(set(list(set(t_2017['WTeamID'])) + list(set(t_2017['LTeamID'])))))
+
+teams_list = [teams_2014,teams_2015,teams_2016,teams_2017]
+
+row_num = int(((64*63)/2)*4)
+col_num = 2
+
+sub_df = pd.DataFrame(np.zeros((row_num,col_num)),columns=['FirstID','SecondID'])
+
+for i in range(0,row_num,2016):
+    l = 0 + i
+    u = 63 + i
+    r = 0
+    m = 63
+    k = teams_list[int(i/2016)]
+    while(0 < m):
+        for j in range(l,u):
+            sub_df['FirstID'][j] = k[r]
+        r = r+1
+        l = u   
+        u = u + m - 1
+        m = m - 1
+        
+for i in range(0,row_num,2016):
+    l = 0 + i
+    u = 63 + i
+    r = 0
+    m = 63
+    k = teams_list[int(i/2016)]
+    while(0 < m):
+        t = 0
+        for j in range(l,u):
+            sub_df['SecondID'][j] = k[r+t+1]
+            t = t + 1
+        r = r+1
+        l = u   
+        u = u + m - 1
+        m = m - 1   
+
+sub_df['year'] = 0
+sub_df['year'][:2016]=2014
+sub_df['year'][2016:int(2016*2)]=2015
+sub_df['year'][int(2016*2):int(2016*3)]=2016
+sub_df['year'][int(2016*3):]=2017
+
+#creating an empty dataframe
+testing = pd.DataFrame(np.zeros((len(sub_df),len(x_columns))) ,columns=x_columns)
+
+#Renaming columns
+testing = testing.rename(columns={'WTeamID':'FirstID','LTeamID':'SecondID'})
+
+for i in range(len(sub_df)):
+    season = int(sub_df.iloc[i]['year'])
+    f_t = int(sub_df.iloc[i]['FirstID'])
+    s_t = int(sub_df.iloc[i]['SecondID'])
+    testing.iloc[i]['FirstID'] = f_t
+    testing.iloc[i]['SecondID'] = s_t
+    for j in list(testing.columns.values)[:19]:
+        k = j[2:]
+        testing.iloc[i][j] = df_list[season-2010].loc[f_t,k]
+    for j in list(testing.columns.values)[19:38]:
+        k = j[2:]
+        testing.iloc[i][j] = df_list[season-2010].loc[s_t,k]  
+        
+
+#Deleting some columns which we don't put in the model.
+del X['f_Seed_region'],X['s_Seed_region'],X['WTeamID'],X['LTeamID'],X['Season']
+del testing['FirstID'],testing['SecondID']
+
+X_train = X[:252]
+y_train = y[:252]
+
+#Checking number of columns is equal
+X_train.shape[1] == testing.shape[1]
+
+def make_suitable_column(abc):
+    yr = int(abc['year'])
+    fi = int(abc['FirstID'])
+    si = int(abc['SecondID'])
+    k = str(yr) + '_' + str(fi) + '_' + str(si)
+    return str(k)
+    
+submission_column = sub_df.apply(make_suitable_column,axis=1)
+submission_column.name = 'ID'
+
+X_train = X_train.values
+y_train = y_train.values
+
+from sklearn.metrics import log_loss
+
+#Fitting and predicting
+from sklearn.linear_model import LogisticRegression
+model1 = LogisticRegression()
+model1.fit(X_train,y_train)
+y_pred2 = model1.predict_proba(testing.values)
+s_f2 = pd.DataFrame(1 - y_pred2)
+s_f2 = s_f2[0]
+s_f2.name = 'pred'
+submission_df2 = pd.concat([submission_column,s_f2],axis=1)
 
 ####################
 # Submit #
 ####################
+submission_df2.to_csv('11_march_2018_lr.csv',index=False)
