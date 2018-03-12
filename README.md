@@ -8,5 +8,4 @@ NCAA - Google Kaggle competition (March &amp; April 2018) for both Men's and Wom
 - Mar 15/16 - Deadline to submit predicitions
 
 **Problems**
-- Cannot upload all files because some are too big
-- Cannot open all data files in excel because some are too big
+- Hard life
