@@ -14,9 +14,9 @@ NCAA - Google Kaggle competition (March &amp; April 2018) for both Men's and Wom
 
 **Result**
 - Women's Bracket
-..* Normal = 0.51
-..* Test = 0.00
+* Normal = 0.51
+* Test = 0.00
 
 - Men's Bracket
-..* Normal = -
-..* Test = -
+* Normal = -
+* Test = -
