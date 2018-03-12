@@ -8,4 +8,5 @@ NCAA - Google Kaggle competition (March &amp; April 2018) for both Men's and Wom
 - Mar 15/16 - Deadline to submit predicitions
 
 **Problems**
-- Hard life
+- Fix coding standards and naming conventions
+- Use XGBoost
