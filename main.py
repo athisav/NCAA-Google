@@ -3,9 +3,6 @@ import scipy as sci  #maths ops
 import pandas as pd  #CSV read
 pd.set_option('display.max_columns', None)
 
-#from sklearn - use scikit
-#from matplotlib import pyplot as plt - stats
-
 #######################################
 # Load and parse files in from CSV using pandas #
 #######################################
