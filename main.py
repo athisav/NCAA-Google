@@ -304,4 +304,4 @@ submission_df2 = pd.concat([submission_column,s_f2],axis=1)
 ####################
 # Submit #
 ####################
-submission_df2.to_csv('11_march_2018_lr.csv',index=False)
+submission_df2.to_csv('sub.csv',index=False)
