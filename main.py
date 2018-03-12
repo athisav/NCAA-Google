@@ -31,8 +31,7 @@ for i in years:
 	        list(set(ntcr[ntcr['Season'] == i]['LTeamID']))))
 
 ####
-rsdr = pd.read_csv('input/WRegularSeasonDetailedResults_PrelimData2018.csv'
-                   )  #regular prelims detail
+rsdr = pd.read_csv('input/WRegularSeasonDetailedResults_PrelimData2018.csv')  #regular prelims detail
 #2 Pointers
 rsdr['WFGM2'] = rsdr['WFGM'] - rsdr['WFGM3']
 rsdr['WFGA2'] = rsdr['WFGA'] - rsdr['WFGA3']
@@ -129,10 +128,60 @@ for i in df_list:
 for m in df_list:
     m['diff'] = m['Score'] - m['EScore']
 
+####
+ntdr = pd.read_csv('input/WNCAATourneyDetailedResults_PrelimData2018.csv') # tourney prelims detail
+
+def winning(data):
+    if data['WTeamID'] < data['LTeamID']:
+        return 1
+    else:
+        return 0
+
+ntdr['winning'] = ntdr.apply(winning,axis=1)
+
+#2 point throws
+ntdr['WFGM2'] = ntdr['WFGM'] - ntdr['WFGM3']
+ntdr['WFGA2'] = ntdr['WFGA'] - ntdr['WFGA3']
+ntdr['LFGM2'] = ntdr['LFGM'] - ntdr['LFGM3']
+ntdr['LFGA2'] = ntdr['LFGA'] - ntdr['LFGA3']
+
+f_columns = ['f_'+str(x) for x in list(df_list[7].columns.values)]
+s_columns = ['s_'+str(x) for x in list(df_list[7].columns.values)]
+t_columns = f_columns + s_columns
+
+nc_2010 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2010].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2010][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+nc_2011 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2011].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2011][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+nc_2012 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2012].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2012][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+nc_2013 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2013].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2013][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+nc_2014 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2014].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2014][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+nc_2015 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2015].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2015][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+nc_2016 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2016].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2016][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+nc_2017 = pd.concat([pd.DataFrame(np.zeros((ntdr[ntdr['Season'] ==2017].shape[0],df_list[0].shape[1]*2)),columns= t_columns),ntdr[ntdr['Season'] ==2017][['WTeamID','LTeamID','winning']].reset_index(drop=True)],axis=1)
+
+nc_list = [nc_2010,nc_2011,nc_2012,nc_2013,nc_2014,nc_2015,nc_2016,nc_2017]
+
+r = 0
+for i in nc_list:
+    for j in range(len(i)):
+        for m in range(len(f_columns)):
+            i.iloc[j,m] = df_list[r].loc[min(i.loc[j,'LTeamID'],i.loc[j,'WTeamID']),f_columns[m][2:]]
+        for m in range(len(f_columns),len(f_columns)*2):
+            i.iloc[j,m] = df_list[r].loc[max(i.loc[j,'LTeamID'],i.loc[j,'WTeamID']),s_columns[m-len(f_columns)][2:]]
+    nc_list[r] = i
+    r = r+1
+
+#Seasons to rows
+j=2010
+for i in nc_list:
+    i['Season'] = j
+    j = j + 1
 ###############
 # Train model #
 ###############
+X = pd.concat([nc_list[0],nc_list[1],nc_list[2],nc_list[3],nc_list[4],nc_list[5],nc_list[6],nc_list[7]])
+X = X.reset_index(drop=True)
+
 
 ####################
-# Make predicition #
+# Submit #
 ####################
