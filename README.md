@@ -10,3 +10,4 @@ NCAA - Google Kaggle competition (March &amp; April 2018) for both Men's and Wom
 **Problems**
 - Fix coding standards and naming conventions
 - Use XGBoost
+- MAKE IT BETTER OMG I CAN DO BETTER THAN 0.51 
