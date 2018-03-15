@@ -10,5 +10,13 @@ NCAA - Google Kaggle competition (March &amp; April 2018) for both Men's and Wom
 **Problems**
 - Fix coding standards and naming conventions
 - Use XGBoost
-- MAKE IT BETTER OMG I CAN DO BETTER THAN 0.51 / I SOMEHOW DID WORSE THAN THE TUTORIAL OHMAIGAD
 - Do the men's bracket
+
+**Result**
+- Women's Bracket
+* Normal = 0.53
+* Test = 0.00
+
+- Men's Bracket
+* Normal = -
+* Test = -
